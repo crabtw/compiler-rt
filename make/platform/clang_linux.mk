@@ -81,6 +81,16 @@ Configs += asan-arm-android
 Arch.asan-arm-android := arm-android
 endif
 
+ifeq ($(call contains,arm,$(CompilerTargetArch)),true)
+Configs += asan-arm
+Arch.asan-arm := arm
+endif
+
+ifeq ($(call contains,mips,$(CompilerTargetArch)),true)
+Configs += asan-mips
+Arch.asan-mips := mips
+endif
+
 endif
 
 ###
@@ -116,6 +126,10 @@ CFLAGS.asan-arm-android := $(CFLAGS) -fPIC -fno-builtin \
 LDFLAGS.asan-arm-android := $(LDFLAGS) $(ANDROID_COMMON_FLAGS) -ldl \
 	-Wl,-soname=libclang_rt.asan-arm-android.so
 
+CFLAGS.asan-arm := $(CFLAGS) -fPIC -fno-builtin -fno-rtti -mllvm -arm-enable-ehabi
+
+CFLAGS.asan-mips := $(CFLAGS) -fPIC -fno-builtin -fno-rtti
+
 # Use our stub SDK as the sysroot to support more portable building. For now we
 # just do this for the core module, because the stub SDK doesn't have
 # enough support to build the sanitizers or profile runtimes.
@@ -145,6 +159,12 @@ FUNCTIONS.ubsan_cxx-x86_64 := $(UbsanCXXFunctions)
 FUNCTIONS.dfsan-x86_64 := $(DfsanFunctions) $(SanitizerCommonFunctions)
 FUNCTIONS.lsan-x86_64 := $(LsanFunctions) $(InterceptionFunctions) \
                                           $(SanitizerCommonFunctions)
+
+FUNCTIONS.asan-arm := $(AsanFunctions) $(InterceptionFunctions) \
+                                       $(SanitizerCommonFunctions)
+
+FUNCTIONS.asan-mips := $(AsanFunctions) $(InterceptionFunctions) \
+                                        $(SanitizerCommonFunctions)
 
 # Always use optimized variants.
 OPTIMIZED := 1
